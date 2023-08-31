@@ -238,3 +238,67 @@ ggsave(paste0('plots/','wind_3d_', format(forecast_termin_HKT, '%Y%m%dT%H%M'), '
        plot = plot_wind_overlay(data = dt, hours = 72, hours_per_break = 6), 
        width = 8, height = 4)
 
+
+curr_hour <- lubridate::floor_date(Sys.time(), unit = "hours")
+
+attr(curr_hour, "tzone") <- "Asia/Hong_Kong"
+
+ensemble_csv = data.table::fread(
+  file = 'https://ensemble-api.open-meteo.com/v1/ensemble?latitude=22.2204&longitude=114.2127&hourly=temperature_2m,relativehumidity_2m,dewpoint_2m,rain,windspeed_10m&timezone=Asia%2FSingapore&models=icon_seamless,gfs_seamless,ecmwf_ifs04&format=csv', 
+  skip = 3
+)
+
+data.table::fwrite(x = ensemble_csv, 
+                   file = file.path('data', 'ensemble', paste0('ensemble_', format(curr_hour, '%Y%m%dT%H%M'), '.csv')))
+
+windcols = names(ensemble_csv)[grepl('windspeed_', names(ensemble_csv))]
+cols = c('time', windcols)
+
+dt = ensemble_csv[ , ..cols]
+
+names(dt) = sub(' \\(km/h\\)', '', names(dt))
+
+mdt = melt(dt, id.vars = 'time')
+
+mdt[ , time := as.POSIXct(time, format = "%Y-%m-%dT%H:%M", tz = "Asia/Hong_Kong")]
+
+mdt[grepl('_icon_seamless', variable), model := 'DWD Icon']
+mdt[grepl('_ecmwf_ifs04', variable), model := 'ECMWF IFS']
+mdt[grepl('_gfs_seamless', variable), model := 'GFS']
+
+mdt[ , forecast := ifelse(grepl('10m_icon_|10m_gfs_|10m_ecmwf_', variable), 
+                          "Point", "Ensemble")]
+
+p = ggplot(data = mdt, 
+           mapping = aes(x = time, y = value, color = model)) + 
+  geom_vline(xintercept = as.numeric(midnights), linetype = "solid", color = "grey88") + # Set to numeric because ggplotly fails to plot POSIXct objects
+  geom_line(aes(group = variable, alpha = forecast, linewidth = forecast)) + 
+  scale_alpha_manual(values = c(0.4,1)) + 
+  scale_linewidth_manual(values = c(0.4,1.2)) +
+  scale_x_datetime(labels = hourly_day_start, 
+                   breaks = seq.POSIXt(from = midnights[1], 
+                                       to = midnights[1] + 60*60*24*10, 
+                                       by = 60*60*6), 
+                   limits = c(midnights[1], midnights[1] + 60*60*24*7), 
+                   expand = expansion(c(0.01,0.01),0)) + 
+  scale_y_continuous(breaks=seq(0,500,by=10), 
+                     limits = c(0,NA), expand = expansion(c(0,0.05),0)) + 
+  theme_bw() + 
+  theme(legend.position = 'top', 
+        legend.key.width = unit(2, "lines"), 
+        axis.text.x = element_text(hjust = 0), 
+        panel.grid.major.y = element_line(color = "grey88"), 
+        panel.grid.major.x = element_line(color = "grey92", linetype = "dashed")) + 
+  guides(color = guide_legend(override.aes = list(linewidth = 1.2))) + 
+  labs(x = 'Wind Speed 10m (km/h)', 
+       y = NULL, 
+       color = "Weather model", 
+       alpha = "Forecast", linewidth = "Forecast", 
+       title = 'Ensemble Model Wind Forecasts for Hong Kong', 
+       subtitle = 'Wind Speed at 10m elevation in Stanley, Hong Kong (22.2204, 114.2127).\nFrom Open-Meteo API.') 
+
+ggsave(filename = paste0('plots/ensemble_wind_10m_', format(curr_hour, '%Y%m%dT%H%M'), '.png'), 
+       plot = p, 
+       path = output_dir, 
+       width = 12, 
+       height = 6)
