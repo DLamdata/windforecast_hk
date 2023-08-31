@@ -306,6 +306,5 @@ p = ggplot(data = mdt,
 
 ggsave(filename = file.path('plots', 'ensemble', paste0('wind_10m_', format(curr_hour, '%Y%m%dT%H%M'), '.png')), 
        plot = p, 
-       path = output_dir, 
        width = 12, 
        height = 6)
