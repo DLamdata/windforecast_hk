@@ -1,3 +1,4 @@
+library(curl)
 library(XML)
 library(data.table)
 library(lubridate)
