@@ -215,7 +215,7 @@ plot_wind_overlay <- function(data = NULL, hours = 48, n_breaks = 20) {
 
 dt[ , location := factor(location, levels = c("Stanley", "HVRC", "Ngong_Ping"))]
 
-p = plot_wind_overlay(data = dt, hours = 48, n_breaks = 12)
+p = plot_wind_overlay(data = dt, hours = 96, n_breaks = 12)
 
-ggsave(filename = paste0('plots/', 'wind_forecast_', format(forecast_termin_HKT, '%Y%m%dT%H%M'), '.png'), 
+ggsave(filename = paste0('plots/', 'wind_forecast96h_', format(forecast_termin_HKT, '%Y%m%dT%H%M'), '.png'), 
        plot = p, width = 8, height = 4)
