@@ -181,8 +181,8 @@ forecast_termin_HKT <- min(unique(dt$forecast_termin))
 
 # time_period = format(time_period_date, '%Y%m%d')
 
-fwrite(x = dt, 
-       file = file.path('data', paste0('hongkong_classic_', format(forecast_termin_HKT, "%Y%m%dT%H%M"), '.csv')))
+data.table::fwrite(x = dt, 
+                   file = file.path('data', paste0('hongkong_classic_', format(forecast_termin_HKT, "%Y%m%dT%H%M"), '.csv')))
 
 # Plot forecast
 midnights <- seq(
@@ -191,7 +191,16 @@ midnights <- seq(
   length.out = 10
 )
 
-plot_wind_overlay <- function(data = NULL, hours = 48, n_breaks = 20) {
+dt[ , location := factor(location, levels = c("Stanley", "HVRC", "Ngong_Ping"))]
+
+midnights[1]
+breaks = seq.POSIXt(midnights[1], midnights[1] + 60*60*24*5, by = 60*60*3)
+
+lubridate::floor_date(Sys.time(), unit = "days", tz="Asia/Hong_Kong")
+
+plot_wind_overlay <- function(data = NULL, 
+                              hours = 48, # n_breaks = 20
+                              hours_per_break = 3) {
   
   hourly_day_start <- function(x) {
     ifelse(is.na(shift(x))|day(x)!=shift(day(x)), 
@@ -199,23 +208,38 @@ plot_wind_overlay <- function(data = NULL, hours = 48, n_breaks = 20) {
            format(x, "%H:%M"))
   }  
   
-  ggplot(data = data[time <= (Sys.time() + hours*60*60)], 
+  ggplot(data = data[time <= (midnights[1] + hours*60*60)], 
          mapping = aes(x = time, y = windSpeed_kmh, color = location)) + 
-    geom_vline(xintercept = as.numeric(midnights), linetype = 3, color = "grey70") + 
+    geom_vline(xintercept = as.numeric(midnights), linetype = "solid", color = "grey80") + # Set to numeric because ggplotly fails to plot POSIXct objects
     geom_point(size = 2, alpha = 0.5) + 
     geom_line(alpha = 0.5) + 
-    scale_x_datetime(breaks = breaks_pretty(n=n_breaks), labels = hourly_day_start) + 
+    scale_x_datetime(breaks = seq.POSIXt(from = midnights[1], 
+                                         to = midnights[1] + 60*60*24*10, 
+                                         by = 60*60*hours_per_break), 
+                     labels = hourly_day_start, 
+                     limits = c(midnights[1], midnights[1] + 60*60*hours), 
+                     expand = expansion(c(0.02,0.02),0)) + 
+    scale_y_continuous(breaks = seq(0,500,by=10), 
+                       limits = c(0,NA), 
+                       expand=expansion(c(0,0.05),0)) + 
     theme_bw() + 
     theme(axis.text.x = element_text(hjust=0), 
-          panel.grid.major = element_line(color = "grey84")) + 
-    labs(title = paste0("met.no forecast for ", forecast_termin_HKT, " HKT"), 
-         subtitle = "Using data from ECMWF")
+          panel.grid.major.y = element_line(color = "grey84"), 
+          panel.grid.major.x = element_line(color = "grey84", 
+                                            linetype = "dashed", 
+                                            linewidth = 0.4)) + 
+    labs(title = paste0("met.no forecast at ", forecast_termin_HKT, " HKT"), 
+         subtitle = "Forecast is based on the HRES model from ECMWF.", 
+         x = "Date and Time (HKT)", 
+         color = "Location")
   
 }
 
-dt[ , location := factor(location, levels = c("Stanley", "HVRC", "Ngong_Ping"))]
+ggsave(paste0('plots/','wind_5d_', format(forecast_termin_HKT, '%Y%m%dT%H%M'), '.png'), 
+       plot = plot_wind_overlay(data = dt, hours = 120, hours_per_break = 6), 
+       width = 12, height = 4)
 
-p = plot_wind_overlay(data = dt, hours = 96, n_breaks = 12)
+ggsave(paste0('plots/','wind_3d_', format(forecast_termin_HKT, '%Y%m%dT%H%M'), '.png'), 
+       plot = plot_wind_overlay(data = dt, hours = 72, hours_per_break = 6), 
+       width = 8, height = 4)
 
-ggsave(filename = paste0('plots/', 'wind_forecast96h_', format(forecast_termin_HKT, '%Y%m%dT%H%M'), '.png'), 
-       plot = p, width = 8, height = 4)
