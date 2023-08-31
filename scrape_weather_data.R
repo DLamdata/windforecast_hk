@@ -4,6 +4,8 @@ library(lubridate)
 library(ggplot2)
 library(scales)
 
+# Scrape and plot Met.no forecasts----
+
 locationforecast_classic <- function (lat, lon, 
                                       elevation = NULL, location = NULL, exact = TRUE, 
                                       tz = "Asia/Hong_Kong", key = NULL) 
@@ -239,14 +241,19 @@ ggsave(paste0('plots/','wind_3d_', format(forecast_termin_HKT, '%Y%m%dT%H%M'), '
        width = 8, height = 4)
 
 
+# Scrape Open-Meteo Ensemble API----
+
 curr_hour <- lubridate::floor_date(Sys.time(), unit = "hours")
 
 attr(curr_hour, "tzone") <- "Asia/Hong_Kong"
 
 ensemble_csv = data.table::fread(
-  file = 'https://ensemble-api.open-meteo.com/v1/ensemble?latitude=22.2204&longitude=114.2127&hourly=temperature_2m,relativehumidity_2m,dewpoint_2m,rain,windspeed_10m&timezone=Asia%2FSingapore&models=icon_seamless,gfs_seamless,ecmwf_ifs04&format=csv', 
+  input = 'https://ensemble-api.open-meteo.com/v1/ensemble?latitude=22.2204&longitude=114.2127&hourly=temperature_2m,relativehumidity_2m,dewpoint_2m,rain,windspeed_10m&timezone=Asia%2FSingapore&models=icon_seamless,gfs_seamless,ecmwf_ifs04&format=csv', 
   skip = 3
 )
+
+ensemble_csv[ , `:=` (latitude = 22.2204, 
+                      longitude = 114.2127)]
 
 data.table::fwrite(x = ensemble_csv, 
                    file = file.path('data', 'ensemble', paste0('ensemble_', format(curr_hour, '%Y%m%dT%H%M'), '.csv')))
