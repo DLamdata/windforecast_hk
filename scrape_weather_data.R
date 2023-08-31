@@ -304,7 +304,7 @@ p = ggplot(data = mdt,
        title = 'Ensemble Model Wind Forecasts for Hong Kong', 
        subtitle = 'Wind Speed at 10m elevation in Stanley, Hong Kong (22.2204, 114.2127).\nFrom Open-Meteo API.') 
 
-ggsave(filename = paste0('plots/ensemble_wind_10m_', format(curr_hour, '%Y%m%dT%H%M'), '.png'), 
+ggsave(filename = file.path('plots', 'ensemble', paste0('wind_10m_', format(curr_hour, '%Y%m%dT%H%M'), '.png')), 
        plot = p, 
        path = output_dir, 
        width = 12, 
