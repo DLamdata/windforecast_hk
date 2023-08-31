@@ -248,7 +248,7 @@ curr_hour <- lubridate::floor_date(Sys.time(), unit = "hours")
 attr(curr_hour, "tzone") <- "Asia/Hong_Kong"
 
 ensemble_csv = data.table::fread(
-  input = 'https://ensemble-api.open-meteo.com/v1/ensemble?latitude=22.2204&longitude=114.2127&hourly=temperature_2m,relativehumidity_2m,dewpoint_2m,rain,windspeed_10m,windgusts_10m&timezone=Asia%2FSingapore&models=icon_seamless,gfs_seamless,ecmwf_ifs04&format=csv', 
+  input = 'https://ensemble-api.open-meteo.com/v1/ensemble?latitude=22.2204&longitude=114.2127&hourly=temperature_2m,relativehumidity_2m,rain,windspeed_10m,windgusts_10m&timezone=Asia%2FSingapore&models=icon_seamless,gfs_seamless,ecmwf_ifs04&format=csv', 
   skip = 3
 )
 
