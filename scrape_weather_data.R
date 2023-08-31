@@ -297,8 +297,8 @@ p = ggplot(data = mdt,
         panel.grid.major.y = element_line(color = "grey88"), 
         panel.grid.major.x = element_line(color = "grey92", linetype = "dashed")) + 
   guides(color = guide_legend(override.aes = list(linewidth = 1.2))) + 
-  labs(x = 'Wind Speed 10m (km/h)', 
-       y = NULL, 
+  labs(y = 'Wind Speed 10m (km/h)', 
+       x = NULL, 
        color = "Weather model", 
        alpha = "Forecast", linewidth = "Forecast", 
        title = 'Ensemble Model Wind Forecasts for Hong Kong', 
