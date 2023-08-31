@@ -156,6 +156,12 @@ locationforecast_classic <- function (lat, lon,
   }
 }
 
+hourly_day_start <- function(x) {
+  ifelse(is.na(shift(x))|day(x)!=shift(day(x)), 
+         format(x, "%H:%M\n%d %b"), 
+         format(x, "%H:%M"))
+}  
+
 coords <- data.table(
   loc = c("Stanley", "HVRC", "Ngong_Ping"), 
   lat = c(22.2204, 22.2723, 22.258611), 
@@ -198,12 +204,6 @@ dt[ , location := factor(location, levels = c("Stanley", "HVRC", "Ngong_Ping"))]
 plot_wind_overlay <- function(data = NULL, 
                               hours = 48, # n_breaks = 20
                               hours_per_break = 3) {
-  
-  hourly_day_start <- function(x) {
-    ifelse(is.na(shift(x))|day(x)!=shift(day(x)), 
-           format(x, "%H:%M\n%d %b"), 
-           format(x, "%H:%M"))
-  }  
   
   ggplot(data = data[time <= (midnights[1] + hours*60*60)], 
          mapping = aes(x = time, y = windSpeed_kmh, color = location)) + 
