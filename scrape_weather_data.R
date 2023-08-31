@@ -193,11 +193,6 @@ midnights <- seq(
 
 dt[ , location := factor(location, levels = c("Stanley", "HVRC", "Ngong_Ping"))]
 
-midnights[1]
-breaks = seq.POSIXt(midnights[1], midnights[1] + 60*60*24*5, by = 60*60*3)
-
-lubridate::floor_date(Sys.time(), unit = "days", tz="Asia/Hong_Kong")
-
 plot_wind_overlay <- function(data = NULL, 
                               hours = 48, # n_breaks = 20
                               hours_per_break = 3) {
