@@ -9,12 +9,10 @@ name: Scrape and plot wind forecast
 jobs:
   render:
     name: Scrape and plot wind forecast
-    runs-on: ubuntu-latest
+    runs-on: macOS-latest
     steps:
       - uses: actions/checkout@v3
       - uses: r-lib/actions/setup-r@v2
-      - name: Install cURL Headers
-        run: sudo apt-get install libcurl4-openssl-dev
       - name: Install dependencies
         run: Rscript -e 'install.packages(c("curl", "data.table", "XML", "lubridate", "ggplot2", "scales"))'
       - name: Scrape the data
