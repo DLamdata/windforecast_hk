@@ -309,3 +309,19 @@ ggsave(filename = file.path('plots', 'ensemble', paste0('wind_10m_', format(curr
        plot = p, 
        width = 12, 
        height = 6)
+
+# Update README.md
+
+new_md_text = paste0(
+  "# windforecast_hk", 
+  "\n\n", 
+  "## ECWMF HRES point forecast", "\n", 
+  "![met.no point estimate](https://raw.githubusercontent.com/DLamdata/windforecast_hk/main/plots/wind_3d_", format(forecast_termin_HKT, '%Y%m%dT%H%M'), ".png)", 
+  "\n\n", 
+  "## Ensemble forecast", "\n", 
+  "![Open-Meteo Ensemble forecasts](https://raw.githubusercontent.com/DLamdata/windforecast_hk/main/plots/ensemble/wind_10m_", format(curr_hour, '%Y%m%dT%H%M'), ".png)"
+  )
+
+write(x = new_md_text, 
+      file = "README.md")
+
