@@ -4,4 +4,4 @@
 ![met.no point estimate](https://raw.githubusercontent.com/DLamdata/windforecast_hk/main/plots/wind_3d_20230903T0900.png)
 
 ## Ensemble forecast
-![Open-Meteo Ensemble forecasts](https://raw.githubusercontent.com/DLamdata/windforecast_hk/main/plots/ensemble/wind_10m_20230903T0900.png)
+![Open-Meteo Ensemble forecasts](https://raw.githubusercontent.com/DLamdata/windforecast_hk/main/plots/ensemble/wind_10m_20230903T1100.png)
