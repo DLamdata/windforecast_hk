@@ -7,9 +7,13 @@ library(scales)
 
 # Scrape and plot Met.no forecasts----
 
-locationforecast_classic <- function (lat, lon, 
-                                      elevation = NULL, location = NULL, exact = TRUE, 
-                                      tz = "Asia/Hong_Kong", key = NULL) 
+locationforecast_classic <- function (lat, 
+                                      lon, 
+                                      elevation = NULL, 
+                                      location = NULL, 
+                                      exact = TRUE, 
+                                      tz = "Asia/Hong_Kong", 
+                                      key = NULL) 
 {
   if (!is.null(location)) {
     latlon = as.numeric(rev(geocode(location = location, 
@@ -190,8 +194,10 @@ forecast_termin_HKT <- min(unique(dt$forecast_termin))
 
 # time_period = format(time_period_date, '%Y%m%d')
 
-data.table::fwrite(x = dt, 
-                   file = file.path('data', paste0('hongkong_classic_', format(forecast_termin_HKT, "%Y%m%dT%H%M"), '.csv')))
+data.table::fwrite(
+  x = dt, 
+  file = file.path('data', 'metno', paste0('hongkong_classic_', format(forecast_termin_HKT, "%Y%m%dT%H%M"), '.csv'))
+  )
 
 # Plot forecast
 midnights <- seq(
@@ -206,6 +212,10 @@ plot_wind_overlay <- function(data = NULL,
                               hours = 48, # n_breaks = 20
                               hours_per_break = 3) {
   
+  max_windSpeed = max(data[time <= (midnights[1] + hours*60*60)]$windSpeed_kmh, na.rm=TRUE)
+  
+  yaxis_max = if(max_windSpeed <= 80) 80 else max_windSpeed
+  
   ggplot(data = data[time <= (midnights[1] + hours*60*60)], 
          mapping = aes(x = time, y = windSpeed_kmh, color = location)) + 
     geom_vline(xintercept = as.numeric(midnights), linetype = "solid", color = "grey80") + # Set to numeric because ggplotly fails to plot POSIXct objects
@@ -218,7 +228,7 @@ plot_wind_overlay <- function(data = NULL,
                      limits = c(midnights[1], midnights[1] + 60*60*hours), 
                      expand = expansion(c(0.02,0.02),0)) + 
     scale_y_continuous(breaks = seq(0,500,by=10), 
-                       limits = c(0,NA), 
+                       limits = c(0, yaxis_max), 
                        expand=expansion(c(0,0.05),0)) + 
     theme_bw() + 
     theme(axis.text.x = element_text(hjust=0), 
@@ -233,11 +243,11 @@ plot_wind_overlay <- function(data = NULL,
   
 }
 
-ggsave(paste0('plots/','wind_5d_', format(forecast_termin_HKT, '%Y%m%dT%H%M'), '.png'), 
+ggsave(filename = file.path('plots', 'metno', paste0('wind_5d_', format(forecast_termin_HKT, '%Y%m%dT%H%M'), '.png')), 
        plot = plot_wind_overlay(data = dt, hours = 120, hours_per_break = 6), 
        width = 12, height = 4)
 
-ggsave(paste0('plots/','wind_3d_', format(forecast_termin_HKT, '%Y%m%dT%H%M'), '.png'), 
+ggsave(filename = file.path('plots', 'metno', paste0('wind_3d_', format(forecast_termin_HKT, '%Y%m%dT%H%M'), '.png')), 
        plot = plot_wind_overlay(data = dt, hours = 72, hours_per_break = 6), 
        width = 8, height = 4)
 
@@ -256,8 +266,10 @@ ensemble_csv = data.table::fread(
 ensemble_csv[ , `:=` (latitude = 22.2204, 
                       longitude = 114.2127)]
 
-data.table::fwrite(x = ensemble_csv, 
-                   file = file.path('data', 'ensemble', paste0('ensemble_', format(curr_hour, '%Y%m%dT%H%M'), '.csv')))
+data.table::fwrite(
+  x = ensemble_csv, 
+  file = file.path('data', 'open_meteo', paste0('ensemble_', format(curr_hour, '%Y%m%dT%H%M'), '.csv'))
+  )
 
 windcols = names(ensemble_csv)[grepl('windspeed_', names(ensemble_csv))]
 cols = c('time', windcols)
@@ -277,6 +289,10 @@ mdt[grepl('_gfs_seamless', variable), model := 'GFS']
 mdt[ , forecast := ifelse(grepl('10m_icon_|10m_gfs_|10m_ecmwf_', variable), 
                           "Point", "Ensemble")]
 
+max_ensmbl_windSpeed = max(mdt$value, na.rm=TRUE)
+
+yaxis_max = if(max_ensmbl_windSpeed <= 80) 80 else max_ensmbl_windSpeed
+
 p = ggplot(data = mdt, 
            mapping = aes(x = time, y = value, color = model)) + 
   geom_vline(xintercept = as.numeric(midnights), linetype = "solid", color = "grey88") + # Set to numeric because ggplotly fails to plot POSIXct objects
@@ -290,7 +306,7 @@ p = ggplot(data = mdt,
                    limits = c(midnights[1], midnights[1] + 60*60*24*7), 
                    expand = expansion(c(0.01,0.01),0)) + 
   scale_y_continuous(breaks=seq(0,500,by=10), 
-                     limits = c(0,NA), expand = expansion(c(0,0.05),0)) + 
+                     limits = c(0, yaxis_max), expand = expansion(c(0,0.05),0)) + 
   theme_bw() + 
   theme(legend.position = 'top', 
         legend.key.width = unit(2, "lines"), 
@@ -305,7 +321,7 @@ p = ggplot(data = mdt,
        title = 'Ensemble Model Wind Forecasts for Hong Kong', 
        subtitle = 'Wind Speed at 10m elevation in Stanley, Hong Kong (22.2204, 114.2127).\nFrom Open-Meteo API.') 
 
-ggsave(filename = file.path('plots', 'ensemble', paste0('wind_10m_', format(curr_hour, '%Y%m%dT%H%M'), '.png')), 
+ggsave(filename = file.path('plots', 'open_meteo', paste0('wind_10m_', format(curr_hour, '%Y%m%dT%H%M'), '.png')), 
        plot = p, 
        width = 12, 
        height = 6)
