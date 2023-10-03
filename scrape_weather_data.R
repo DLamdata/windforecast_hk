@@ -332,7 +332,7 @@ new_md_text = paste0(
   "# windforecast_hk", 
   "\n\n", 
   "## ECWMF HRES point forecast", "\n", 
-  "![met.no point estimate](https://raw.githubusercontent.com/DLamdata/windforecast_hk/main/plots/metno/wind_3d_", format(forecast_termin_HKT, '%Y%m%dT%H%M'), ".png)", 
+  "![met.no point estimate](https://raw.githubusercontent.com/DLamdata/windforecast_hk/main/plots/metno/wind_5d_", format(forecast_termin_HKT, '%Y%m%dT%H%M'), ".png)", 
   "\n\n", 
   "## Ensemble forecast", "\n", 
   "![Open-Meteo Ensemble forecasts](https://raw.githubusercontent.com/DLamdata/windforecast_hk/main/plots/open_meteo/wind_10m_", format(curr_hour, '%Y%m%dT%H%M'), ".png)"
