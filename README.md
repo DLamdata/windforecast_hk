@@ -1,7 +1,7 @@
 # windforecast_hk
 
 ## ECWMF HRES point forecast
-![met.no point estimate](https://raw.githubusercontent.com/DLamdata/windforecast_hk/main/plots/metno/wind_5d_20241122T1900.png)
+![met.no point estimate](https://raw.githubusercontent.com/DLamdata/windforecast_hk/main/plots/metno/wind_5d_20241125T2100.png)
 
 ## Ensemble forecast
-![Open-Meteo Ensemble forecasts](https://raw.githubusercontent.com/DLamdata/windforecast_hk/main/plots/open_meteo/wind_10m_20241122T2100.png)
+![Open-Meteo Ensemble forecasts](https://raw.githubusercontent.com/DLamdata/windforecast_hk/main/plots/open_meteo/wind_10m_20241126T0000.png)
